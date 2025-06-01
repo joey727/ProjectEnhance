@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Successful</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background: #fff;
+            padding: 2rem 3rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .checkmark {
+            font-size: 3rem;
+            color: #4caf50;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        p {
+            margin: 0 0 1.5rem 0;
+            color: #555;
+        }
+        a {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #4caf50;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        a:hover {
+            background: #388e3c;
+        }
+        .user-info {
+            margin-top: 1rem;
+            color: #4a5568;
+            font-size: 0.875rem;
+        }
+        .user-info a {
+            margin-left: 0.5rem;
+            color: #3182ce;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="checkmark">&#10003;</div>
+        <h1>Login Successful</h1>
+        <p>Welcome back! You have successfully logged in.</p>
+        <a href="/">Go to Dashboard</a>
+        {% if request.session.get('user') %}
+        <div class="user-info">
+            Welcome, {{ request.session['user']['email'] }}!
+            <a href="/logout">Logout</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

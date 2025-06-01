@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhance</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-inter min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md shadow-sm py-3 px-8 flex items-center justify-between fixed top-0 left-0 w-full z-10 border-b border-slate-100">
+        <div class="flex items-center space-x-3">
+            <!-- Minimalist black and white logo -->
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white border border-slate-200 shadow">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="7" height="7" rx="2" fill="#111" />
+                    <rect x="13" y="2" width="7" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <rect x="2" y="13" width="7" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <rect x="13" y="13" width="7" height="7" rx="2" fill="#111" />
+                </svg>
+            </span>
+            <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Enhance</span>
+        </div>
+        <button id="loginBtn" onclick="window.location.href='login.html'" class="border border-indigo-200 text-indigo-600 font-medium rounded-lg px-5 py-1.5 bg-white hover:bg-indigo-50 transition text-sm shadow-sm">Login</button>
+    </header>
+    <!-- Hero & Use Cases -->
+    <main class="flex-1 flex flex-col items-center justify-center px-4 pt-32">
+        <section class="w-full max-w-2xl text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight">
+                Effortless Image Enhancement<br>
+                <span class="bg-gradient-to-r from-indigo-500 to-blue-400 bg-clip-text text-transparent">for Everyone</span>
+            </h2>
+            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-xl mx-auto">
+                Instantly restore, enhance, and transform your images with AI-powered clarity and color. Perfect for e-commerce, social media, creative projects, and more.
+            </p>
+        </section>
+        <section class="grid gap-6 md:grid-cols-2 w-full max-w-3xl mb-12">
+            <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">1</span>
+                <div class="text-left">
+                    <h3 class="font-semibold text-slate-800 mb-1">Photo Restoration</h3>
+                    <p class="text-slate-600 text-sm">Bring old or damaged photos back to life with vivid detail and color.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">2</span>
+                <div class="text-left">
+                    <h3 class="font-semibold text-slate-800 mb-1">E-commerce Boost</h3>
+                    <p class="text-slate-600 text-sm">Enhance product images to increase sales and attract more customers.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">3</span>
+                <div class="text-left">
+                    <h3 class="font-semibold text-slate-800 mb-1">Social Media Ready</h3>
+                    <p class="text-slate-600 text-sm">Create stunning visuals for posts, stories, and campaigns in seconds.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">4</span>
+                <div class="text-left">
+                    <h3 class="font-semibold text-slate-800 mb-1">Creative Projects</h3>
+                    <p class="text-slate-600 text-sm">Refine graphics for portfolios, presentations, and personal artwork.</p>
+                </div>
+            </div>
+        </section>
+        <!-- Get Started CTA -->
+        <section class="w-full max-w-xl text-center">
+            <div class="bg-gradient-to-r from-indigo-500 to-blue-400 rounded-2xl shadow-lg px-8 py-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Ready to Enhance Your Images?</h2>
+                <button id="getStartedBtn" onclick="window.location.href='login.html'" class="bg-white text-indigo-600 font-semibold rounded-lg px-8 py-3 shadow hover:bg-indigo-50 hover:text-indigo-700 transition text-base">Get Started</button>
+            </div>
+        </section>
+    </main>
+    <footer class="text-center py-6 text-slate-400 text-sm mt-auto">
+        &copy; 2025 Enhance. All rights reserved.
+    </footer>
+    <script src="../src/main.js"></script>
+</body>
+</html>

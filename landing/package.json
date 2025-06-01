@@ -1,0 +1,20 @@
+{
+  "name": "projectenhance",
+  "version": "1.0.0",
+  "description": "A minimalist and nicely designed landing page.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "live-server public"
+  },
+  "keywords": [
+    "landing page",
+    "minimalist",
+    "design"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
