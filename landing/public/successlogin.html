@@ -5,72 +5,108 @@
     <title>Login Successful</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
-            background: #f5f7fa;
+            min-height: 100vh;
+            background: #f8fafc;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #222;
         }
         .container {
             background: #fff;
-            padding: 2rem 3rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            padding: 2.5rem 2rem;
+            max-width: 340px;
+            width: 100%;
             text-align: center;
         }
-        .checkmark {
-            font-size: 3rem;
-            color: #4caf50;
-            margin-bottom: 1rem;
+        .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .icon svg {
+            width: 48px;
+            height: 48px;
+            display: block;
         }
         h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
             margin: 0 0 0.5rem 0;
-            font-size: 2rem;
+            letter-spacing: -0.5px;
         }
         p {
-            margin: 0 0 1.5rem 0;
-            color: #555;
+            color: #64748b;
+            font-size: 1rem;
+            margin: 0 0 2rem 0;
         }
-        a {
-            display: inline-block;
-            padding: 0.5rem 1.5rem;
-            background: #4caf50;
+        a.button {
+            display: block;
+            width: 100%;
+            background: #222;
             color: #fff;
-            border-radius: 5px;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 0;
+            font-size: 1rem;
+            font-weight: 500;
             text-decoration: none;
-            font-weight: bold;
-            transition: background 0.2s;
+            transition: background 0.18s;
+            margin-bottom: 0.5rem;
         }
-        a:hover {
-            background: #388e3c;
+        a.button:hover {
+            background: #111;
         }
         .user-info {
-            margin-top: 1rem;
-            color: #4a5568;
-            font-size: 0.875rem;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+            color: #475569;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1rem;
         }
-        .user-info a {
+        .logout-link {
+            color: #6366f1;
+            text-decoration: none;
             margin-left: 0.5rem;
-            color: #3182ce;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .logout-link:hover {
             text-decoration: underline;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="checkmark">&#10003;</div>
-        <h1>Login Successful</h1>
-        <p>Welcome back! You have successfully logged in.</p>
-        <a href="/">Go to Dashboard</a>
-        {% if request.session.get('user') %}
-        <div class="user-info">
-            Welcome, {{ request.session['user']['email'] }}!
-            <a href="/logout">Logout</a>
+        <div class="icon">
+            <svg viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="16" fill="#e0f2fe"/>
+                <path d="M10 17l4 4 8-8" stroke="#222" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </div>
-        {% endif %}
+        <h1>Welcome back</h1>
+        <p>You're signed in.<br>Enjoy using Enhance.</p>
+        <a href="/" class="button">Go to Dashboard</a>
+        <div class="user-info">
+            <span id="user-email"></span>
+            <a href="/logout" class="logout-link">Logout</a>
+        </div>
     </div>
+    <script src="/landing/main.js"></script>
 </body>
 </html>
