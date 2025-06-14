@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
@@ -32,9 +32,6 @@ async def root():
 
 @app.get("/")
 async def homepage(request: Request):
-    user = request.session.get('user')
-    if user:
-        return HTMLResponse(f"Hello, {user['email']}! <a href='/logout'>Logout</a>")
     with open("landing/public/index.html", "r") as f:
         html_content = f.read()
     return HTMLResponse(content=html_content)
@@ -52,10 +49,12 @@ async def auth(request: Request):
     user_info = await oauth.google.userinfo(token=token)
     if user_info:
         request.session['user'] = dict(user_info)
-        return RedirectResponse(url="/landing/successlogin.html")
+        return RedirectResponse(url="/landing/dashboard.html")
 
 
-@app.get("/logout")
+# logout route
+
+@app.get('/logout')
 async def logout(request: Request):
-    request.session.pop('user', None)
-    return RedirectResponse(url="/")
+    request.session.pop("user", None)
+    return RedirectResponse(url="/landing/login.html")
