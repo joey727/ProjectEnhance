@@ -10,6 +10,9 @@
   <!-- Header -->
   <header class="flex justify-between items-center p-6 bg-blue-500">
     <h1 class="text-3xl font-semibold text-gray-50">Your Dashboard</h1>
+    {% if user.name or user.given_name %}
+      <p class="text-gray-50">Welcome, {{ user.name or user.given_name }} 👋</p>
+    {% endif %}
     <a href="/logout">
       <button class="bg-gray-50 text-blue-500 font-semibold px-4 py-2 rounded shadow-md hover:bg-gray-100">
         Logout
@@ -22,7 +25,7 @@
     <!-- Greeting Section -->
     <section class="bg-blue-100 p-6 rounded-md shadow-md">
       <h2 class="text-2xl font-semibold">
-        Welcome, {{ user.info['name'] }} 
+        👋 Hello, {{ user.name or user.given_name or '' }} 
       </h2>
       <p class="text-gray-700 mt-2">Here’s a quick view of your activity</p>
     </section>

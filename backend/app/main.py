@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
 from backend.app.config import settings
@@ -10,9 +11,11 @@ app = FastAPI()
 app.add_middleware(SessionMiddleware, os.environ.get(
     "FASTAPI_SECRET_KEY", "random_secret_key"))
 
+
 # Serve static files (HTML, CSS, JS, etc.)
 app.mount("/landing", StaticFiles(directory="landing/public",
           html=True), name="static")
+
 
 oauth = OAuth()
 oauth.register(
@@ -30,13 +33,6 @@ async def root():
     return RedirectResponse(url="/landing/")
 
 
-@app.get("/")
-async def homepage(request: Request):
-    with open("landing/public/index.html", "r") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content)
-
-
 @app.get("/login")
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
@@ -49,7 +45,7 @@ async def auth(request: Request):
     user_info = await oauth.google.userinfo(token=token)
     if user_info:
         request.session['user'] = dict(user_info)
-        return RedirectResponse(url="/landing/dashboard.html")
+        return RedirectResponse(url="/landing/successlogin.html")
 
 
 # logout route
