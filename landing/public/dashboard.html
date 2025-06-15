@@ -11,21 +11,71 @@
         .toast {
             transform: translateY(100%);
             opacity: 0;
-            transition: all 3s ease-in-out;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .toast.show {
             transform: translateY(0);
             opacity: 1;
         }
+        @keyframes slideIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+        .toast.show {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        .toast.hide {
+            animation: slideOut 0.5s ease-in forwards;
+        }
+        .toast-success {
+            background-color: #f0fdf4;
+            border-color: #86efac;
+        }
+        .toast-error {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+        }
+        .toast-info {
+            background-color: #f0f9ff;
+            border-color: #bae6fd;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-inter min-h-screen flex flex-col">
     <!-- Toast Notification -->
-    <div id="toast" class="toast fixed bottom-4 right-4 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 z-50">
-        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        <span id="toast-message">Successfully logged out</span>
+    <div id="toast" class="toast fixed bottom-4 right-4 bg-white border border-slate-200 rounded-lg shadow-lg flex items-center space-x-3 px-4 py-3 z-50">
+        <div class="flex-shrink-0">
+            <div id="toast-icon" class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+        </div>
+        <div class="flex-1">
+            <p id="toast-title" class="text-sm font-medium text-slate-900">Successfully logged out</p>
+            <p id="toast-message" class="text-xs text-slate-500">You have been signed out of your account</p>
+        </div>
+        <button onclick="hideToast()" class="flex-shrink-0 text-slate-400 hover:text-slate-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
     <!-- Header -->
@@ -108,37 +158,86 @@
         </section>
 
         <!-- Image Upload Section -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-12">
-            <h2 class="text-xl font-semibold text-slate-900 mb-4">Enhance New Image</h2>
-            <form action="/process-image" method="POST" enctype="multipart/form-data" class="space-y-4">
-                <div class="border-2 border-dashed border-slate-200 rounded-lg p-8 text-center hover:border-indigo-200 transition-colors">
-                    <input 
-                        type="file" 
-                        name="file" 
-                        aria-label="Select image to enhance"
-                        class="hidden"
-                        id="fileInput"
-                        accept="image/png,image/jpeg,image/gif"
-                        required
-                    />
-                    <label for="fileInput" class="cursor-pointer">
-                        <div class="space-y-2">
-                            <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="text-slate-600">
-                                <span class="text-indigo-600 font-medium">Click to upload</span> or drag and drop
-                            </div>
-                            <p class="text-xs text-slate-500">PNG, JPG, GIF up to 10MB</p>
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">Enhance Your Image</h2>
+            <div class="space-y-4">
+                <div class="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center">
+                    <div id="upload-area" class="space-y-3">
+                        <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <div class="text-sm text-slate-600">
+                            <label for="file-upload" class="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
+                                <span>Upload an image</span>
+                                <input id="file-upload" name="file" type="file" class="sr-only" accept="image/*">
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
                         </div>
-                    </label>
+                        <p class="text-xs text-slate-500">PNG, JPG, GIF up to 10MB</p>
+                    </div>
+                    <div id="preview-area" class="hidden">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <h3 class="text-sm font-medium text-slate-700">Original Image</h3>
+                                <img id="original-preview" class="w-full h-48 object-contain rounded-lg border border-slate-200" src="" alt="Original image">
+                            </div>
+                            <div class="space-y-2">
+                                <h3 class="text-sm font-medium text-slate-700">Enhanced Image</h3>
+                                <div id="enhanced-preview" class="w-full h-48 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                                        <p class="text-sm text-slate-500 mt-2">Enhancing...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <div class="flex items-center space-x-4">
+                                <label class="text-sm font-medium text-slate-700">Enhancement Type:</label>
+                                <select id="enhancement-type" class="rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="clarity">Clarity Enhancement</option>
+                                    <option value="color">Color Enhancement</option>
+                                    <option value="resolution">Resolution Enhancement</option>
+                                    <option value="all">All Enhancements</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button onclick="resetUpload()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50">
+                                    Cancel
+                                </button>
+                                <button onclick="processImage()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                                    Enhance Image
+                                </button>
+                            </div>
+                        </div>
+                        <div id="result-actions" class="hidden mt-4 pt-4 border-t border-slate-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm text-slate-600">Enhancement complete!</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-slate-500">Credits used:</span>
+                                        <span id="credits-used" class="text-xs font-medium text-slate-700">1</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="downloadImage()" class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download
+                                    </button>
+                                    <button onclick="shareImage()" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
+                                        Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button 
-                    type="submit" 
-                    class="w-full bg-gradient-to-r from-indigo-500 to-blue-400 text-white font-semibold rounded-lg px-6 py-3 shadow-sm hover:from-indigo-600 hover:to-blue-500 transition-all">
-                    Enhance Image
-                </button>
-            </form>
+            </div>
         </section>
 
         <!-- History Section -->
@@ -183,10 +282,74 @@
     </footer>
 
     <script>
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+
+            // Reset classes
+            toast.classList.remove('toast-success', 'toast-error', 'toast-info');
+            toastIcon.classList.remove('bg-green-50', 'bg-red-50', 'bg-blue-50');
+            toastIcon.querySelector('svg').classList.remove('text-green-500', 'text-red-500', 'text-blue-500');
+
+            // Set content
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+
+            // Set type-specific styling
+            switch(type) {
+                case 'success':
+                    toast.classList.add('toast-success');
+                    toastIcon.classList.add('bg-green-50');
+                    toastIcon.querySelector('svg').classList.add('text-green-500');
+                    toastIcon.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    `;
+                    break;
+                case 'error':
+                    toast.classList.add('toast-error');
+                    toastIcon.classList.add('bg-red-50');
+                    toastIcon.querySelector('svg').classList.add('text-red-500');
+                    toastIcon.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    `;
+                    break;
+                case 'info':
+                    toast.classList.add('toast-info');
+                    toastIcon.classList.add('bg-blue-50');
+                    toastIcon.querySelector('svg').classList.add('text-blue-500');
+                    toastIcon.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `;
+                    break;
+            }
+
+            // Show toast
+            toast.classList.remove('hide');
+            toast.classList.add('show');
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                hideToast();
+            }, 3000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+        }
+
         function showLogoutToast(event) {
             event.preventDefault();
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
+            showToast('info', 'Logging out...', 'You are being signed out of your account');
             
             // Redirect after showing the toast
             setTimeout(() => {
@@ -196,13 +359,108 @@
 
         // Check if we're coming from a logout
         if (window.location.search.includes('logout=true')) {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            
-            // Remove the toast after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            showToast('info', 'Logged Out', 'You have been successfully signed out');
+        }
+
+        // Image upload handling
+        const fileInput = document.getElementById('file-upload');
+        const uploadArea = document.getElementById('upload-area');
+        const previewArea = document.getElementById('preview-area');
+        const originalPreview = document.getElementById('original-preview');
+        const enhancedPreview = document.getElementById('enhanced-preview');
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    originalPreview.src = e.target.result;
+                    uploadArea.classList.add('hidden');
+                    previewArea.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function processImage() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('enhancement_type', document.getElementById('enhancement-type').value);
+
+            try {
+                showToast('info', 'Processing...', 'Enhancing your image, please wait');
+                
+                const response = await fetch('/api/enhance', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Enhancement failed');
+
+                const result = await response.json();
+                
+                // Update enhanced preview
+                enhancedPreview.innerHTML = `
+                    <img src="${result.enhanced_url}" class="w-full h-48 object-contain" alt="Enhanced image">
+                `;
+
+                // Show result actions
+                document.getElementById('result-actions').classList.remove('hidden');
+                document.getElementById('credits-used').textContent = result.credits_used || '1';
+
+                // Show success toast
+                showToast('success', 'Enhancement Complete!', 'Your image has been successfully enhanced');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('error', 'Enhancement Failed', 'Failed to enhance image. Please try again.');
+            }
+        }
+
+        function downloadImage() {
+            const enhancedImage = document.querySelector('#enhanced-preview img');
+            if (!enhancedImage) return;
+
+            const link = document.createElement('a');
+            link.href = enhancedImage.src;
+            link.download = 'enhanced-image.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function shareImage() {
+            const enhancedImage = document.querySelector('#enhanced-preview img');
+            if (!enhancedImage) return;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Enhanced Image',
+                    text: 'Check out my enhanced image!',
+                    url: enhancedImage.src
+                }).catch(console.error);
+            } else {
+                showToast('info', 'Share Image', 'Copy the image URL to share');
+            }
+        }
+
+        function resetUpload() {
+            fileInput.value = '';
+            uploadArea.classList.remove('hidden');
+            previewArea.classList.add('hidden');
+            document.getElementById('result-actions').classList.add('hidden');
+            originalPreview.src = '';
+            enhancedPreview.innerHTML = `
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="text-sm text-slate-500 mt-2">Enhancing...</p>
+                </div>
+            `;
         }
     </script>
 </body>
