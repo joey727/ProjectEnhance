@@ -7,8 +7,27 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .toast {
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 3s ease-in-out;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 font-inter min-h-screen flex flex-col">
+    <!-- Toast Notification -->
+    <div id="toast" class="toast fixed bottom-4 right-4 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 z-50">
+        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toast-message">Successfully logged out</span>
+    </div>
+
     <!-- Header -->
     <header class="bg-white/80 backdrop-blur-md shadow-sm py-3 px-8 flex items-center justify-between fixed top-0 left-0 w-full z-10 border-b border-slate-100">
         <div class="flex items-center space-x-3">
@@ -25,9 +44,9 @@
         </div>
         <div class="flex items-center space-x-4">
             {% if user %}
-                <span class="text-slate-600 text-sm">Welcome, {{ user.name or user.given_name }}</span>
+                <span class="text-slate-600 text-sm">{{ user.name or user.given_name }}</span>
             {% endif %}
-            <a href="/logout" class="text-slate-600 hover:text-slate-900 transition-colors">
+            <a href="/logout" class="text-slate-600 hover:text-slate-900 transition-colors" onclick="showLogoutToast(event)">
                 <button class="border border-slate-200 text-slate-600 font-medium rounded-lg px-4 py-1.5 bg-white hover:bg-slate-50 transition text-sm shadow-sm">
                     Logout
                 </button>
@@ -42,20 +61,64 @@
             <h1 class="text-3xl font-bold text-slate-900 mb-2">
                 Welcome back{% if user %}, {{ user.name or user.given_name }}{% endif %}
             </h1>
-            <p class="text-slate-600">Enhance your images with AI-powered clarity and precision.</p>
+            <p class="text-slate-600">Transform your images with our AI-powered enhancement tools. Get started by uploading your first image below.</p>
+        </section>
+
+        <!-- Quick Stats Section -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 mb-1">Images Enhanced</p>
+                        <p class="text-2xl font-semibold text-slate-900">{{ files|length if files else 0 }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 mb-1">Storage Used</p>
+                        <p class="text-2xl font-semibold text-slate-900">0 MB</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 mb-1">Enhancement Credits</p>
+                        <p class="text-2xl font-semibold text-slate-900">10</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Image Upload Section -->
         <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-12">
-            <h2 class="text-xl font-semibold text-slate-900 mb-4">Process New Image</h2>
+            <h2 class="text-xl font-semibold text-slate-900 mb-4">Enhance New Image</h2>
             <form action="/process-image" method="POST" enctype="multipart/form-data" class="space-y-4">
                 <div class="border-2 border-dashed border-slate-200 rounded-lg p-8 text-center hover:border-indigo-200 transition-colors">
                     <input 
                         type="file" 
                         name="file" 
-                        aria-label="Select image to process"
+                        aria-label="Select image to enhance"
                         class="hidden"
                         id="fileInput"
+                        accept="image/png,image/jpeg,image/gif"
                         required
                     />
                     <label for="fileInput" class="cursor-pointer">
@@ -73,14 +136,19 @@
                 <button 
                     type="submit" 
                     class="w-full bg-gradient-to-r from-indigo-500 to-blue-400 text-white font-semibold rounded-lg px-6 py-3 shadow-sm hover:from-indigo-600 hover:to-blue-500 transition-all">
-                    Process Image
+                    Enhance Image
                 </button>
             </form>
         </section>
 
         <!-- History Section -->
         <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-            <h2 class="text-xl font-semibold text-slate-900 mb-4">Recent Activity</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-slate-900">Recent Activity</h2>
+                {% if files %}
+                    <button class="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View All</button>
+                {% endif %}
+            </div>
             {% if files %}
                 <div class="space-y-3">
                     {% for f in files %}
@@ -89,7 +157,10 @@
                                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span class="text-slate-700">{{ f.filename }}</span>
+                                <div>
+                                    <span class="text-slate-700 font-medium">{{ f.filename }}</span>
+                                    <p class="text-xs text-slate-500">Enhanced with AI</p>
+                                </div>
                             </div>
                             <span class="text-sm text-slate-500">{{ f.processed_at }}</span>
                         </div>
@@ -100,7 +171,8 @@
                     <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                     </svg>
-                    <p class="mt-2 text-slate-500">No files processed yet</p>
+                    <p class="mt-2 text-slate-500">No images enhanced yet</p>
+                    <p class="text-sm text-slate-400 mt-1">Upload your first image to get started</p>
                 </div>
             {% endif %}
         </section>
@@ -109,5 +181,29 @@
     <footer class="text-center py-6 text-slate-400 text-sm mt-auto">
         &copy; 2025 Enhance. All rights reserved.
     </footer>
+
+    <script>
+        function showLogoutToast(event) {
+            event.preventDefault();
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            
+            // Redirect after showing the toast
+            setTimeout(() => {
+                window.location.href = '/logout';
+            }, 1000);
+        }
+
+        // Check if we're coming from a logout
+        if (window.location.search.includes('logout=true')) {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            
+            // Remove the toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

@@ -6,6 +6,13 @@ from authlib.integrations.starlette_client import OAuth
 from backend.app.config import settings
 from fastapi.staticfiles import StaticFiles
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("uvicorn.access")
+logger.setLevel(logging.WARNING)
+
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, os.environ.get(
@@ -25,8 +32,11 @@ oauth.register(
     client_id=settings.client_id,
     client_secret=settings.client_secret,
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile',
-                   'redirect_url': 'http://127.0.0.1:8000'}
+    client_kwargs={
+        'scope': 'openid email profile',
+        'redirect_url': 'http://127.0.0.1:8000',
+        'debug': False
+    }
 )
 
 
@@ -55,7 +65,7 @@ async def auth(request: Request):
 @app.get('/logout')
 async def logout(request: Request):
     request.session.pop("user", None)
-    return RedirectResponse(url="/landing/login.html")
+    return RedirectResponse(url="/landing/login.html?logout=true")
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
