@@ -11,6 +11,8 @@ app = FastAPI()
 app.add_middleware(SessionMiddleware, os.environ.get(
     "FASTAPI_SECRET_KEY", "random_secret_key"))
 
+# Set up templates
+templates = Jinja2Templates(directory="landing/public")
 
 # Serve static files (HTML, CSS, JS, etc.)
 app.mount("/landing", StaticFiles(directory="landing/public",
@@ -45,7 +47,7 @@ async def auth(request: Request):
     user_info = await oauth.google.userinfo(token=token)
     if user_info:
         request.session['user'] = dict(user_info)
-        return RedirectResponse(url="/landing/successlogin.html")
+        return RedirectResponse(url="/dashboard")
 
 
 # logout route
@@ -54,3 +56,11 @@ async def auth(request: Request):
 async def logout(request: Request):
     request.session.pop("user", None)
     return RedirectResponse(url="/landing/login.html")
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request):
+    user = request.session.get('user')
+    if not user:
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse("dashboard.html", {"request": request, "user": user})
