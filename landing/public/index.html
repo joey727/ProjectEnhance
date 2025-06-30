@@ -12,7 +12,7 @@
     <!-- Header -->
     <header class="bg-white/80 backdrop-blur-md shadow-sm py-3 px-8 flex items-center justify-between fixed top-0 left-0 w-full z-10 border-b border-slate-100">
         <div class="flex items-center space-x-3">
-            <!-- Minimalist black and white logo -->
+            <!-- Logo -->
             <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white border border-slate-200 shadow">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
                     <rect x="2" y="2" width="7" height="7" rx="2" fill="#111" />
@@ -23,16 +23,47 @@
             </span>
             <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Enhance</span>
         </div>
-        <button id="loginBtn" onclick="window.location.href='login.html'" class="border border-indigo-200 text-indigo-600 font-medium rounded-lg px-5 py-1.5 bg-white hover:bg-indigo-50 transition text-sm shadow-sm">Login</button>
+        <div class="flex items-center space-x-2">
+            <!-- Language Button with Flags -->
+            <div class="relative">
+                <button id="langBtn"
+                    class="flex items-center border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 rounded-lg px-3 py-1.5 text-xs font-medium shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-200 h-9"
+                    aria-haspopup="listbox" aria-expanded="false">
+                    <span id="langFlag" class="text-lg mr-1">🌐</span>
+                    <svg class="w-4 h-4 ml-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 20 20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l3-3 3 3m0 6l-3 3-3-3"/>
+                    </svg>
+                </button>
+                <div id="langMenu" class="hidden absolute right-0 mt-2 w-32 bg-white border border-slate-100 rounded shadow-lg z-50">
+                    <button class="flex items-center w-full text-left px-4 py-2 text-xs hover:bg-slate-50" data-lang="auto">
+                        <span class="mr-2 text-lg">🌐</span>Auto
+                    </button>
+                    <button class="flex items-center w-full text-left px-4 py-2 text-xs hover:bg-slate-50" data-lang="en">
+                        <span class="mr-2 text-lg">🇺🇸</span>English
+                    </button>
+                    <button class="flex items-center w-full text-left px-4 py-2 text-xs hover:bg-slate-50" data-lang="fr">
+                        <span class="mr-2 text-lg">🇫🇷</span>Français
+                    </button>
+                    <button class="flex items-center w-full text-left px-4 py-2 text-xs hover:bg-slate-50" data-lang="es">
+                        <span class="mr-2 text-lg">🇪🇸</span>Español
+                    </button>
+                </div>
+            </div>
+            <!-- Login button in the far right corner -->
+            <button id="loginBtn"
+                onclick="window.location.href='login.html'"
+                class="ml-4 border border-indigo-200 text-indigo-600 font-medium rounded-lg px-5 py-1.5 bg-white hover:bg-indigo-50 transition text-sm shadow-sm"
+                data-i18n="login">Login</button>
+        </div>
     </header>
     <!-- Hero & Use Cases -->
     <main class="flex-1 flex flex-col items-center justify-center px-4 pt-32">
         <section class="w-full max-w-2xl text-center mb-12">
-            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight" data-i18n="welcome">
                 Effortless Image Enhancement<br>
                 <span class="bg-gradient-to-r from-indigo-500 to-blue-400 bg-clip-text text-transparent">for Everyone</span>
-            </h2>
-            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-xl mx-auto">
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-xl mx-auto" data-i18n="description">
                 Instantly restore, enhance, and transform your images with AI-powered clarity and color. Perfect for e-commerce, social media, creative projects, and more.
             </p>
         </section>
@@ -70,7 +101,7 @@
         <section class="w-full max-w-xl text-center">
             <div class="bg-gradient-to-r from-indigo-500 to-blue-400 rounded-2xl shadow-lg px-8 py-10">
                 <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Ready to Enhance Your Images?</h2>
-                <button id="getStartedBtn" onclick="window.location.href='login.html'" class="bg-white text-indigo-600 font-semibold rounded-lg px-8 py-3 shadow hover:bg-indigo-50 hover:text-indigo-700 transition text-base">Get Started</button>
+                <button id="getStartedBtn" onclick="window.location.href='login.html'" class="bg-white text-indigo-600 font-semibold rounded-lg px-8 py-3 shadow hover:bg-indigo-50 hover:text-indigo-700 transition text-base" data-i18n="getStarted">Get Started</button>
             </div>
         </section>
     </main>
@@ -78,5 +109,80 @@
         &copy; 2025 Enhance. All rights reserved.
     </footer>
     <script src="../src/main.js"></script>
+    <script>
+const translations = {
+    en: {
+        welcome: "Welcome to Enhance",
+        login: "Login",
+        getStarted: "Get Started",
+        description: "Enhance your images with AI.",
+    },
+    fr: {
+        welcome: "Bienvenue sur Enhance",
+        login: "Connexion",
+        getStarted: "Commencer",
+        description: "Améliorez vos images avec l'IA.",
+    },
+    es: {
+        welcome: "Bienvenido a Enhance",
+        login: "Iniciar sesión",
+        getStarted: "Comenzar",
+        description: "Mejora tus imágenes con IA.",
+    }
+};
+
+const langFlags = {
+    auto: "🌐",
+    en: "🇺🇸",
+    fr: "🇫🇷",
+    es: "🇪🇸"
+};
+
+function setLangLabel(lang) {
+    const langFlag = document.getElementById('langFlag');
+    langFlag.textContent = langFlags[lang] || "🌐";
+}
+
+function applyLanguage() {
+    let lang = localStorage.getItem('ui_lang');
+    if (!lang || lang === 'auto') {
+        lang = (navigator.language || 'en').slice(0,2);
+    }
+    document.documentElement.lang = lang;
+    setLangLabel(localStorage.getItem('ui_lang') || 'auto');
+    // Update UI text
+    const t = translations[lang] || translations['en'];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Dropdown logic
+    const langBtn = document.getElementById('langBtn');
+    const langMenu = document.getElementById('langMenu');
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', function() {
+        langMenu.classList.add('hidden');
+    });
+    langMenu.querySelectorAll('button[data-lang]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lang = this.getAttribute('data-lang');
+            if (lang === 'auto') {
+                localStorage.removeItem('ui_lang');
+            } else {
+                localStorage.setItem('ui_lang', lang);
+            }
+            langMenu.classList.add('hidden');
+            applyLanguage();
+        });
+    });
+    applyLanguage();
+});
+</script>
 </body>
 </html>

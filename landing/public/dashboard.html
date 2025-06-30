@@ -18,43 +18,18 @@
             opacity: 1;
         }
         @keyframes slideIn {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         @keyframes slideOut {
-            from {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateY(100%);
-                opacity: 0;
-            }
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100%); opacity: 0; }
         }
-        .toast.show {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-        .toast.hide {
-            animation: slideOut 0.5s ease-in forwards;
-        }
-        .toast-success {
-            background-color: #f0fdf4;
-            border-color: #86efac;
-        }
-        .toast-error {
-            background-color: #fef2f2;
-            border-color: #fecaca;
-        }
-        .toast-info {
-            background-color: #f0f9ff;
-            border-color: #bae6fd;
-        }
+        .toast.show { animation: slideIn 0.5s ease-out forwards; }
+        .toast.hide { animation: slideOut 0.5s ease-in forwards; }
+        .toast-success { background-color: #f0fdf4; border-color: #86efac; }
+        .toast-error { background-color: #fef2f2; border-color: #fecaca; }
+        .toast-info { background-color: #f0f9ff; border-color: #bae6fd; }
     </style>
 </head>
 <body class="bg-slate-50 font-inter min-h-screen flex flex-col">
@@ -93,23 +68,71 @@
             <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Enhance</span>
         </div>
         <div class="flex items-center space-x-4">
-            {% if user %}
-                <span class="text-slate-600 text-sm">{{ user.name or user.given_name }}</span>
-            {% endif %}
-            <a href="/logout" class="text-slate-600 hover:text-slate-900 transition-colors" onclick="showLogoutToast(event)">
-                <button class="border border-slate-200 text-slate-600 font-medium rounded-lg px-4 py-1.5 bg-white hover:bg-slate-50 transition text-sm shadow-sm">
-                    Logout
+            <!-- User avatar button with dropdown -->
+            <div class="relative">
+                <button id="userMenuBtn" class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-300 transition shadow hover:bg-indigo-200">
+                    {% if user %}
+                        {{ (user.name or user.given_name)[0]|upper }}
+                    {% else %}
+                        U
+                    {% endif %}
                 </button>
-            </a>
+                <!-- Dropdown menu -->
+                <div id="userDropdown" class="hidden absolute right-0 mt-3 w-72 bg-white border border-slate-100 rounded-xl shadow-2xl py-3 z-50">
+                    <div class="flex items-center px-5 pb-3 border-b border-slate-100">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xl mr-3">
+                            {% if user %}
+                                {{ (user.name or user.given_name)[0] }}
+                            {% else %}
+                                U
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-900 text-base truncate max-w-[140px]">
+                                {% if user %}
+                                    {{ user.name or user.given_name }}
+                                {% else %}
+                                    User
+                                {% endif %}
+                            </div>
+                            <div class="text-slate-500 text-xs truncate max-w-[140px]">
+                                {% if user %}
+                                    {{ user.email }}
+                                {% else %}
+                                    user@email.com
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/dashboard" class="flex items-center px-5 py-3 text-slate-700 hover:bg-slate-50 text-sm transition">
+                        <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="flex items-center px-5 py-3 text-slate-700 hover:bg-slate-50 text-sm transition">
+                        <svg class="w-5 h-5 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                        Premium
+                    </a>
+                    <a href="/logout" onclick="showLogoutToast(event)" class="flex items-center px-5 py-3 text-red-600 hover:bg-red-50 text-sm transition">
+                        <svg class="w-5 h-5 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" />
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- Main content -->
-    <main class="flex-grow pt-24 px-8 max-w-4xl mx-auto w-full">
+    <main class="flex-grow pt-24 px-4 md:px-8 max-w-4xl mx-auto w-full">
         <!-- Welcome Section -->
         <section class="mb-12">
             <h1 class="text-3xl font-bold text-slate-900 mb-2">
-                Welcome back{% if user %}, {{ user.name or user.given_name }}{% endif %}
+                Welcome{% if user %}, {{ user.name or user.given_name }}{% endif %}
             </h1>
             <p class="text-slate-600">Transform your images with our AI-powered enhancement tools. Get started by uploading your first image below.</p>
         </section>
@@ -282,22 +305,20 @@
     </footer>
 
     <script>
+        // Toast logic
         function showToast(type, title, message) {
             const toast = document.getElementById('toast');
             const toastIcon = document.getElementById('toast-icon');
             const toastTitle = document.getElementById('toast-title');
             const toastMessage = document.getElementById('toast-message');
 
-            // Reset classes
-            toast.classList.remove('toast-success', 'toast-error', 'toast-info');
+            toast.classList.remove('toast-success', 'toast-error', 'toast-info', 'hide');
             toastIcon.classList.remove('bg-green-50', 'bg-red-50', 'bg-blue-50');
             toastIcon.querySelector('svg').classList.remove('text-green-500', 'text-red-500', 'text-blue-500');
 
-            // Set content
             toastTitle.textContent = title;
             toastMessage.textContent = message;
 
-            // Set type-specific styling
             switch(type) {
                 case 'success':
                     toast.classList.add('toast-success');
@@ -331,14 +352,8 @@
                     break;
             }
 
-            // Show toast
-            toast.classList.remove('hide');
             toast.classList.add('show');
-
-            // Hide after 3 seconds
-            setTimeout(() => {
-                hideToast();
-            }, 3000);
+            setTimeout(() => { hideToast(); }, 3000);
         }
 
         function hideToast() {
@@ -350,16 +365,22 @@
         function showLogoutToast(event) {
             event.preventDefault();
             showToast('info', 'Logging out...', 'You are being signed out of your account');
-            
-            // Redirect after showing the toast
             setTimeout(() => {
                 window.location.href = '/logout';
-            }, 1000);
+            }, 1200);
         }
 
-        // Check if we're coming from a logout
-        if (window.location.search.includes('logout=true')) {
-            showToast('info', 'Logged Out', 'You have been successfully signed out');
+        // Dropdown toggle logic
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', function () {
+                userDropdown.classList.add('hidden');
+            });
         }
 
         // Image upload handling
@@ -369,7 +390,9 @@
         const originalPreview = document.getElementById('original-preview');
         const enhancedPreview = document.getElementById('enhanced-preview');
 
-        fileInput.addEventListener('change', handleFileSelect);
+        if (fileInput) {
+            fileInput.addEventListener('change', handleFileSelect);
+        }
 
         function handleFileSelect(event) {
             const file = event.target.files[0];
@@ -394,28 +417,20 @@
 
             try {
                 showToast('info', 'Processing...', 'Enhancing your image, please wait');
-                
                 const response = await fetch('/api/enhance', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!response.ok) throw new Error('Enhancement failed');
-
                 const result = await response.json();
-                
-                // Update enhanced preview
+
                 enhancedPreview.innerHTML = `
                     <img src="${result.enhanced_url}" class="w-full h-48 object-contain" alt="Enhanced image">
                 `;
-
-                // Show result actions
                 document.getElementById('result-actions').classList.remove('hidden');
                 document.getElementById('credits-used').textContent = result.credits_used || '1';
-
-                // Show success toast
                 showToast('success', 'Enhancement Complete!', 'Your image has been successfully enhanced');
-
             } catch (error) {
                 console.error('Error:', error);
                 showToast('error', 'Enhancement Failed', 'Failed to enhance image. Please try again.');
@@ -425,7 +440,6 @@
         function downloadImage() {
             const enhancedImage = document.querySelector('#enhanced-preview img');
             if (!enhancedImage) return;
-
             const link = document.createElement('a');
             link.href = enhancedImage.src;
             link.download = 'enhanced-image.png';
@@ -437,7 +451,6 @@
         function shareImage() {
             const enhancedImage = document.querySelector('#enhanced-preview img');
             if (!enhancedImage) return;
-
             if (navigator.share) {
                 navigator.share({
                     title: 'Enhanced Image',
@@ -461,7 +474,7 @@
                     <p class="text-sm text-slate-500 mt-2">Enhancing...</p>
                 </div>
             `;
-        }        
+        }
     </script>
 </body>
 </html>
