@@ -57,51 +57,48 @@
         </div>
     </header>
     <!-- Hero & Use Cases -->
-    <main class="flex-1 flex flex-col items-center justify-center px-4 pt-32">
-        <section class="w-full max-w-2xl text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight" data-i18n="welcome">
-                Effortless Image Enhancement<br>
-                <span class="bg-gradient-to-r from-indigo-500 to-blue-400 bg-clip-text text-transparent">for Everyone</span>
+    <main class="flex-1 flex flex-col items-center justify-center px-4 pt-36 md:pt-44">
+        <section class="w-full max-w-2xl text-center mb-14">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-5 leading-tight tracking-tight drop-shadow-sm" data-i18n="headline">
+                <!-- Will be filled by JS -->
             </h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-xl mx-auto" data-i18n="description">
-                Instantly restore, enhance, and transform your images with AI-powered clarity and color. Perfect for e-commerce, social media, creative projects, and more.
-            </p>
+            <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto font-medium" data-i18n="description"></p>
         </section>
-        <section class="grid gap-6 md:grid-cols-2 w-full max-w-3xl mb-12">
+        <section class="grid gap-6 md:grid-cols-2 w-full max-w-3xl mb-14">
             <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
                 <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">1</span>
                 <div class="text-left">
-                    <h3 class="font-semibold text-slate-800 mb-1">Photo Restoration</h3>
-                    <p class="text-slate-600 text-sm">Bring old or damaged photos back to life with vivid detail and color.</p>
+                    <h3 class="font-semibold text-slate-800 mb-1" data-i18n="feature1_title"></h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feature1_desc"></p>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
                 <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">2</span>
                 <div class="text-left">
-                    <h3 class="font-semibold text-slate-800 mb-1">E-commerce Boost</h3>
-                    <p class="text-slate-600 text-sm">Enhance product images to increase sales and attract more customers.</p>
+                    <h3 class="font-semibold text-slate-800 mb-1" data-i18n="feature2_title"></h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feature2_desc"></p>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
                 <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">3</span>
                 <div class="text-left">
-                    <h3 class="font-semibold text-slate-800 mb-1">Social Media Ready</h3>
-                    <p class="text-slate-600 text-sm">Create stunning visuals for posts, stories, and campaigns in seconds.</p>
+                    <h3 class="font-semibold text-slate-800 mb-1" data-i18n="feature3_title"></h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feature3_desc"></p>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-start space-x-4">
                 <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold">4</span>
                 <div class="text-left">
-                    <h3 class="font-semibold text-slate-800 mb-1">Creative Projects</h3>
-                    <p class="text-slate-600 text-sm">Refine graphics for portfolios, presentations, and personal artwork.</p>
+                    <h3 class="font-semibold text-slate-800 mb-1" data-i18n="feature4_title"></h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feature4_desc"></p>
                 </div>
             </div>
         </section>
         <!-- Get Started CTA -->
         <section class="w-full max-w-xl text-center">
             <div class="bg-gradient-to-r from-indigo-500 to-blue-400 rounded-2xl shadow-lg px-8 py-10">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Ready to Enhance Your Images?</h2>
-                <button id="getStartedBtn" onclick="window.location.href='login.html'" class="bg-white text-indigo-600 font-semibold rounded-lg px-8 py-3 shadow hover:bg-indigo-50 hover:text-indigo-700 transition text-base" data-i18n="getStarted">Get Started</button>
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4 drop-shadow" data-i18n="cta_headline"></h2>
+                <button id="getStartedBtn" onclick="window.location.href='login.html'" class="bg-white text-indigo-600 font-semibold rounded-lg px-8 py-3 shadow hover:bg-indigo-50 hover:text-indigo-700 transition text-base" data-i18n="getStarted"></button>
             </div>
         </section>
     </main>
@@ -112,22 +109,49 @@
     <script>
 const translations = {
     en: {
-        welcome: "Welcome to Enhance",
-        login: "Login",
+        headline: "Effortless Image Enhancement\nfor Everyone",
+        description: "Instantly restore, enhance, and transform your images with AI-powered clarity and color. Perfect for e-commerce, social media, creative projects, and more.",
+        feature1_title: "Photo Restoration",
+        feature1_desc: "Bring old or damaged photos back to life with vivid detail and color.",
+        feature2_title: "E-commerce Boost",
+        feature2_desc: "Enhance product images to increase sales and attract more customers.",
+        feature3_title: "Social Media Ready",
+        feature3_desc: "Create stunning visuals for posts, stories, and campaigns in seconds.",
+        feature4_title: "Creative Projects",
+        feature4_desc: "Refine graphics for portfolios, presentations, and personal artwork.",
+        cta_headline: "Ready to Enhance Your Images?",
         getStarted: "Get Started",
-        description: "Enhance your images with AI.",
+        login: "Login"
     },
     fr: {
-        welcome: "Bienvenue sur Enhance",
-        login: "Connexion",
+        headline: "Amélioration d'image sans effort\npour tous",
+        description: "Restaurez, améliorez et transformez instantanément vos images avec la clarté et la couleur de l'IA. Parfait pour le e-commerce, les réseaux sociaux, les projets créatifs, et plus encore.",
+        feature1_title: "Restauration de photos",
+        feature1_desc: "Redonnez vie à d'anciennes photos ou photos endommagées avec des détails et des couleurs éclatantes.",
+        feature2_title: "Boost E-commerce",
+        feature2_desc: "Améliorez les images de produits pour augmenter les ventes et attirer plus de clients.",
+        feature3_title: "Prêt pour les réseaux sociaux",
+        feature3_desc: "Créez des visuels époustouflants pour les publications, stories et campagnes en quelques secondes.",
+        feature4_title: "Projets créatifs",
+        feature4_desc: "Affinez les graphismes pour les portfolios, présentations et œuvres personnelles.",
+        cta_headline: "Prêt à améliorer vos images ?",
         getStarted: "Commencer",
-        description: "Améliorez vos images avec l'IA.",
+        login: "Connexion"
     },
     es: {
-        welcome: "Bienvenido a Enhance",
-        login: "Iniciar sesión",
+        headline: "Mejora de imágenes sin esfuerzo\npara todos",
+        description: "Restaura, mejora y transforma instantáneamente tus imágenes con claridad y color impulsados por IA. Perfecto para comercio electrónico, redes sociales, proyectos creativos y más.",
+        feature1_title: "Restauración de fotos",
+        feature1_desc: "Devuelve la vida a fotos antiguas o dañadas con detalles y colores vívidos.",
+        feature2_title: "Impulso E-commerce",
+        feature2_desc: "Mejora las imágenes de productos para aumentar las ventas y atraer más clientes.",
+        feature3_title: "Listo para redes sociales",
+        feature3_desc: "Crea imágenes impresionantes para publicaciones, historias y campañas en segundos.",
+        feature4_title: "Proyectos creativos",
+        feature4_desc: "Refina gráficos para portafolios, presentaciones y obras personales.",
+        cta_headline: "¿Listo para mejorar tus imágenes?",
         getStarted: "Comenzar",
-        description: "Mejora tus imágenes con IA.",
+        login: "Iniciar sesión"
     }
 };
 
@@ -154,7 +178,19 @@ function applyLanguage() {
     const t = translations[lang] || translations['en'];
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (t[key]) el.textContent = t[key];
+        if (t[key]) {
+            // Special styling for 'for Everyone' in the headline
+            if (key === "headline" || key === "cta_headline") {
+                // Replace 'for Everyone' (en), 'pour tous' (fr), 'para todos' (es) with span
+                let html = t[key]
+                    .replace(/for Everyone/, '<span class="text-indigo-500">for Everyone</span>')
+                    .replace(/pour tous/, '<span class="text-indigo-500">pour tous</span>')
+                    .replace(/para todos/, '<span class="text-indigo-500">para todos</span>');
+                el.innerHTML = html.replace(/\n/g, "<br>");
+            } else {
+                el.textContent = t[key];
+            }
+        }
     });
 }
 
