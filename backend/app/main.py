@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi import FastAPI, Request, UploadFile, File, Form
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
@@ -7,6 +7,11 @@ from backend.app.config import settings
 from fastapi.staticfiles import StaticFiles
 import os
 import logging
+import shutil
+import uuid
+from datetime import datetime
+import cv2
+import numpy as np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -73,4 +78,71 @@ async def dashboard(request: Request):
     user = request.session.get('user')
     if not user:
         return RedirectResponse(url="/login")
-    return templates.TemplateResponse("dashboard.html", {"request": request, "user": user})
+    files = request.session.get("files", [])
+    credits = request.session.get("credits", 10)
+    return templates.TemplateResponse("dashboard.html", {"request": request, "user": user, "files": files, "credits": credits})
+
+
+@app.get("/api/credits")
+async def get_credits(request: Request):
+    credits = request.session.get("credits", 10)
+    return {"credits": credits}
+
+# File upload directories
+UPLOAD_DIR = "landing/public/uploads"
+ENHANCED_DIR = "landing/public/enhanced"
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(ENHANCED_DIR, exist_ok=True)
+
+
+@app.post("/api/enhance")
+async def enhance_image(
+    request: Request,
+    file: UploadFile = File(...),
+    enhancement_type: str = Form("all")
+):
+    user = request.session.get('user')
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+
+    # Save uploaded file
+    file_id = str(uuid.uuid4())
+    filename = f"{file_id}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    # --- Simple Unblur (Deblur) using OpenCV ---
+    # Read the image
+    image = cv2.imdecode(np.fromfile(
+        file_path, dtype=np.uint8), cv2.IMREAD_COLOR)
+    if image is None:
+        return JSONResponse({"error": "Invalid image"}, status_code=400)
+
+    # Apply a sharpening kernel (simple deblurring)
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    enhanced_image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
+
+    # Save enhanced image
+    enhanced_filename = f"enhanced_{filename}"
+    enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
+    cv2.imwrite(enhanced_path, enhanced_image)
+    # -------------------------------------------
+
+    # Save file info to session (or DB in production)
+    files = request.session.get("files", [])
+    files.append({
+        "filename": file.filename,
+        "enhanced_url": f"/landing/enhanced/{enhanced_filename}",
+        "processed_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "enhancement_type": enhancement_type
+    })
+    request.session["files"] = files
+
+    return {
+        "enhanced_url": f"/landing/enhanced/{enhanced_filename}",
+        "credits_used": 1
+    }
