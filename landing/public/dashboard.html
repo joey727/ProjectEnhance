@@ -389,6 +389,7 @@
         const previewArea = document.getElementById('preview-area');
         const originalPreview = document.getElementById('original-preview');
         const enhancedPreview = document.getElementById('enhanced-preview');
+        const enhanceBtn = document.querySelector('button.bg-blue-600.rounded-md'); // The "Enhance Image" button
 
         if (fileInput) {
             fileInput.addEventListener('change', handleFileSelect);
@@ -407,9 +408,17 @@
             }
         }
 
-        async function processImage() {
+        if (enhanceBtn) {
+            enhanceBtn.addEventListener('click', processImage);
+        }
+
+        async function processImage(event) {
+            if (event) event.preventDefault();
             const file = fileInput.files[0];
-            if (!file) return;
+            if (!file) {
+                showToast('error', 'No File', 'Please select an image to enhance.');
+                return;
+            }
 
             const formData = new FormData();
             formData.append('file', file);
@@ -417,6 +426,12 @@
 
             try {
                 showToast('info', 'Processing...', 'Enhancing your image, please wait');
+                enhancedPreview.innerHTML = `
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        <p class="text-sm text-slate-500 mt-2">Enhancing...</p>
+                    </div>
+                `;
                 const response = await fetch('/api/enhance', {
                     method: 'POST',
                     body: formData
