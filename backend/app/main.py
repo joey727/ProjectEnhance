@@ -12,6 +12,12 @@ import uuid
 from datetime import datetime
 import cv2
 import numpy as np
+from PIL import Image
+from torchvision import transforms
+from backend.app.model_generator import FPNInception
+import torch
+from backend.app.DeblurGAN_model.deblurgan_predict import DeblurGANPredictor
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -96,6 +102,16 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(ENHANCED_DIR, exist_ok=True)
 
 
+# Update as needed
+DEBLURGAN_TF_CKPT_DIR = 'backend/app/DeblurGAN_model/DeblurrGAN_last.data'
+deblurgan_tf = None
+try:
+    deblurgan_tf = DeblurGANPredictor(DEBLURGAN_TF_CKPT_DIR)
+    print("TensorFlow DeblurGAN model loaded.")
+except Exception as e:
+    print("Failed to load TensorFlow DeblurGAN model:", e)
+
+
 @app.post("/api/enhance")
 async def enhance_image(
     request: Request,
@@ -113,26 +129,28 @@ async def enhance_image(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # --- Simple Unblur (Deblur) using OpenCV ---
-    # Read the image
-    image = cv2.imdecode(np.fromfile(
-        file_path, dtype=np.uint8), cv2.IMREAD_COLOR)
-    if image is None:
-        return JSONResponse({"error": "Invalid image"}, status_code=400)
-
-    # Apply a sharpening kernel (simple deblurring)
-    kernel = np.array([[0, -1, 0],
-                       [-1, 5, -1],
-                       [0, -1, 0]])
-    enhanced_image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
-
-    # Save enhanced image
     enhanced_filename = f"enhanced_{filename}"
     enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
-    cv2.imwrite(enhanced_path, enhanced_image)
-    # -------------------------------------------
 
-    # Save file info to session (or DB in production)
+    try:
+        if deblurgan_tf:
+            pil_image = Image.open(file_path).convert("RGB")
+            output_image = deblurgan_tf.predict(pil_image)
+            output_image.save(enhanced_path)
+        else:
+            # Fallback: OpenCV sharpening
+            image = cv2.imdecode(np.fromfile(
+                file_path, dtype=np.uint8), cv2.IMREAD_COLOR)
+            if image is None:
+                return JSONResponse({"error": "Invalid image"}, status_code=400)
+            kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+            enhanced_image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
+            cv2.imwrite(enhanced_path, enhanced_image)
+    except Exception as e:
+        print("Enhancement error:", e)
+        return JSONResponse({"error": "Enhancement failed"}, status_code=500)
+
+    # Save file info to session
     files = request.session.get("files", [])
     files.append({
         "filename": file.filename,
