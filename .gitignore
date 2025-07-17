@@ -8,3 +8,5 @@ __pycache__
 *.data
 *.index
 *.pth
+*.data-00000-of-00001
+*DeblurGAN-tf/
