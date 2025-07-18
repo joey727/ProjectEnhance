@@ -9,4 +9,5 @@ __pycache__
 *.index
 *.pth
 *.data-00000-of-00001
-*DeblurGAN-tf/
+DeblurGAN_model/
+DeblurGAN-tf/
