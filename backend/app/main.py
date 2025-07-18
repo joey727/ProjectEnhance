@@ -16,8 +16,7 @@ from PIL import Image
 from torchvision import transforms
 from backend.app.model_generator import FPNInception
 import torch
-from backend.app.DeblurGAN_model.deblurgan_predict import DeblurGANPredictor
-from huggingface_hub import from_pretrained_keras
+from backend.app.model.deblurgan_predict import DeblurGANPredictor
 from PIL import Image
 import tensorflow as tf
 
@@ -104,66 +103,65 @@ ENHANCED_DIR = "landing/public/enhanced"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(ENHANCED_DIR, exist_ok=True)
 
+# deblurgan model
+DEBLURGAN_TF_CKPT_DIR = 'backend/app/DeblurGAN_model/checkpoint'
+deblurgan_tf = None
+try:
+    deblurgan_tf = DeblurGANPredictor(DEBLURGAN_TF_CKPT_DIR)
+    print("TensorFlow DeblurGAN model loaded.")
+except Exception as e:
+    print("Failed to load TensorFlow DeblurGAN model:", e)
 
-# Update as needed
-# DEBLURGAN_TF_CKPT_DIR = 'backend/app/DeblurGAN_model'
-# deblurgan_tf = None
-# try:
-#     deblurgan_tf = DeblurGANPredictor(DEBLURGAN_TF_CKPT_DIR)
-#     print("TensorFlow DeblurGAN model loaded.")
-# except Exception as e:
-#     print("Failed to load TensorFlow DeblurGAN model:", e)
 
+@app.post("/api/enhance")
+async def enhance_image(
+    request: Request,
+    file: UploadFile = File(...),
+    enhancement_type: str = Form("all")
+):
+    user = request.session.get('user')
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
 
-# @app.post("/api/enhance")
-# async def enhance_image(
-#     request: Request,
-#     file: UploadFile = File(...),
-#     enhancement_type: str = Form("all")
-# ):
-#     user = request.session.get('user')
-#     if not user:
-#         return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    # Save uploaded file
+    file_id = str(uuid.uuid4())
+    filename = f"{file_id}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-#     # Save uploaded file
-#     file_id = str(uuid.uuid4())
-#     filename = f"{file_id}_{file.filename}"
-#     file_path = os.path.join(UPLOAD_DIR, filename)
-#     with open(file_path, "wb") as buffer:
-#         shutil.copyfileobj(file.file, buffer)
+    enhanced_filename = f"enhanced_{filename}"
+    enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
 
-#     enhanced_filename = f"enhanced_{filename}"
-#     enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
+    try:
+        if deblurgan_tf:
+            pil_image = Image.open(file_path).convert("RGB")
+            output_image = deblurgan_tf.predict(pil_image)
+            output_image.save(enhanced_path)
+        else:
+            # Fallback: OpenCV sharpening
+            image = cv2.imdecode(np.fromfile(
+                file_path, dtype=np.uint8), cv2.IMREAD_COLOR)
+            if image is None:
+                return JSONResponse({"error": "Invalid image"}, status_code=400)
+            kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+            enhanced_image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
+            cv2.imwrite(enhanced_path, enhanced_image)
+    except Exception as e:
+        print("Enhancement error:", e)
+        return JSONResponse({"error": "Enhancement failed"}, status_code=500)
 
-#     try:
-#         if deblurgan_tf:
-#             pil_image = Image.open(file_path).convert("RGB")
-#             output_image = deblurgan_tf.predict(pil_image)
-#             output_image.save(enhanced_path)
-#         else:
-#             # Fallback: OpenCV sharpening
-#             image = cv2.imdecode(np.fromfile(
-#                 file_path, dtype=np.uint8), cv2.IMREAD_COLOR)
-#             if image is None:
-#                 return JSONResponse({"error": "Invalid image"}, status_code=400)
-#             kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-#             enhanced_image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
-#             cv2.imwrite(enhanced_path, enhanced_image)
-#     except Exception as e:
-#         print("Enhancement error:", e)
-#         return JSONResponse({"error": "Enhancement failed"}, status_code=500)
+    # Save file info to session
+    files = request.session.get("files", [])
+    files.append({
+        "filename": file.filename,
+        "enhanced_url": f"/landing/enhanced/{enhanced_filename}",
+        "processed_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "enhancement_type": enhancement_type
+    })
+    request.session["files"] = files
 
-#     # Save file info to session
-#     files = request.session.get("files", [])
-#     files.append({
-#         "filename": file.filename,
-#         "enhanced_url": f"/landing/enhanced/{enhanced_filename}",
-#         "processed_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-#         "enhancement_type": enhancement_type
-#     })
-#     request.session["files"] = files
-
-#     return {
-#         "enhanced_url": f"/landing/enhanced/{enhanced_filename}",
-#         "credits_used": 1
-#     }
+    return {
+        "enhanced_url": f"/landing/enhanced/{enhanced_filename}",
+        "credits_used": 1
+    }
