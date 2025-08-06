@@ -20,6 +20,8 @@ from backend.app.model.deblurgan_predict import DeblurGANPredictor
 from PIL import Image
 import tensorflow as tf
 
+from backend.app.simple_enhancer import SimpleImageEnhancer
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -104,13 +106,28 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(ENHANCED_DIR, exist_ok=True)
 
 # deblurgan model
-DEBLURGAN_TF_CKPT_DIR = 'backend/app/DeblurGAN_model/checkpoint'
-deblurgan_tf = None
+DEBLURGAN_PYTORCH_PATH = 'backend/app/fpn_inception.h5'
+deblurgan_model = None
 try:
-    deblurgan_tf = DeblurGANPredictor(DEBLURGAN_TF_CKPT_DIR)
-    print("TensorFlow DeblurGAN model loaded.")
+    from backend.app.deblurgan_pytorch import DeblurGANPredictorPyTorch
+    deblurgan_model = DeblurGANPredictorPyTorch(DEBLURGAN_PYTORCH_PATH)
+    print("PyTorch DeblurGAN model loaded.")
 except Exception as e:
-    print("Failed to load TensorFlow DeblurGAN model:", e)
+    print("Failed to load PyTorch DeblurGAN model:", e)
+    # Fallback to TensorFlow model
+    try:
+        from backend.app.model.deblurgan_predict import DeblurGANPredictor
+        deblurgan_model = DeblurGANPredictor('backend/app/DeblurGAN_mode')
+        print("TensorFlow DeblurGAN model loaded as fallback.")
+    except Exception as e2:
+        print("Failed to load TensorFlow DeblurGAN model:", e2)
+        # Final fallback to enhanced OpenCV-based enhancer
+        try:
+            from backend.app.simple_enhancer import SimpleImagePredictor
+            deblurgan_model = SimpleImagePredictor()
+            print("Enhanced OpenCV-based image enhancer loaded as final fallback.")
+        except Exception as e3:
+            print("Failed to load simple enhancer:", e3)
 
 
 @app.post("/api/enhance")
@@ -134,19 +151,31 @@ async def enhance_image(
     enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
 
     try:
-        if deblurgan_tf:
+        if deblurgan_model:
             pil_image = Image.open(file_path).convert("RGB")
-            output_image = deblurgan_tf.predict(pil_image)
+
+            if hasattr(deblurgan_model, 'predict') and callable(deblurgan_model.predict):
+                # Count external arguments (excluding `self`)
+                arg_count = deblurgan_model.predict.__code__.co_argcount - 1
+
+                if arg_count == 2:
+                    output_image = deblurgan_model.predict(
+                        pil_image, enhancement_type)
+                elif arg_count == 1:
+                    output_image = deblurgan_model.predict(pil_image)
+                else:
+                    raise TypeError("Unsupported predict() signature.")
+            else:
+                output_image = deblurgan_model.predict(pil_image)
+
             output_image.save(enhanced_path)
+
         else:
-            # Fallback: OpenCV sharpening
-            image = cv2.imdecode(np.fromfile(
-                file_path, dtype=np.uint8), cv2.IMREAD_COLOR)
-            if image is None:
-                return JSONResponse({"error": "Invalid image"}, status_code=400)
-            kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-            enhanced_image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
-            cv2.imwrite(enhanced_path, enhanced_image)
+            # Fallback: Enhanced OpenCV processing
+            pil_image = Image.open(file_path).convert("RGB")
+            enhancer = SimpleImageEnhancer()
+            output_image = enhancer.enhance_image(pil_image, enhancement_type)
+            output_image.save(enhanced_path)
     except Exception as e:
         print("Enhancement error:", e)
         return JSONResponse({"error": "Enhancement failed"}, status_code=500)

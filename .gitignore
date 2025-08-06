@@ -11,3 +11,6 @@ __pycache__
 *.data-00000-of-00001
 DeblurGAN_model/
 DeblurGAN-tf/
+training_data/
+.model/
+.DS_Store
