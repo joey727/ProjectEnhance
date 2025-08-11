@@ -3,6 +3,8 @@ from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
+from backend.app import fpn_mobilenet
+from backend.app import inference
 from backend.app.config import settings
 from fastapi.staticfiles import StaticFiles
 import os
@@ -14,12 +16,15 @@ import cv2
 import numpy as np
 from PIL import Image
 from torchvision import transforms
+from backend.app.inference import deblur_image
 from backend.app.model_generator import FPNInception
 import torch
 from backend.app.model.deblurgan_predict import DeblurGANPredictor
 from PIL import Image
 import tensorflow as tf
+import torchvision.transforms as T
 
+from backend.app.model_loader import load_model
 from backend.app.simple_enhancer import SimpleImageEnhancer
 
 
@@ -106,12 +111,12 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(ENHANCED_DIR, exist_ok=True)
 
 # deblurgan model
-DEBLURGAN_PYTORCH_PATH = 'backend/app/fpn_inception.h5'
+
 deblurgan_model = None
 try:
-    from backend.app.deblurgan_pytorch import DeblurGANPredictorPyTorch
-    deblurgan_model = DeblurGANPredictorPyTorch(DEBLURGAN_PYTORCH_PATH)
-    print("PyTorch DeblurGAN model loaded.")
+    model = load_model(
+        "backend/app/trained_models/mobilenetv2_rgb_epoch150_bs256.pth")
+    print("weights successfully loaded")
 except Exception as e:
     print("Failed to load PyTorch DeblurGAN model:", e)
     # Fallback to TensorFlow model
@@ -150,35 +155,38 @@ async def enhance_image(
     enhanced_filename = f"enhanced_{filename}"
     enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
 
-    try:
-        if deblurgan_model:
-            pil_image = Image.open(file_path).convert("RGB")
+    if model:
+        fpn_mobilenet.deblur_image(model, file_path, enhanced_path)
 
-            if hasattr(deblurgan_model, 'predict') and callable(deblurgan_model.predict):
-                # Count external arguments (excluding `self`)
-                arg_count = deblurgan_model.predict.__code__.co_argcount - 1
+    # try:
+    #     if deblurgan_model:
+    #         pil_image = Image.open(file_path).convert("RGB")
 
-                if arg_count == 2:
-                    output_image = deblurgan_model.predict(
-                        pil_image, enhancement_type)
-                elif arg_count == 1:
-                    output_image = deblurgan_model.predict(pil_image)
-                else:
-                    raise TypeError("Unsupported predict() signature.")
-            else:
-                output_image = deblurgan_model.predict(pil_image)
+    #         if hasattr(deblurgan_model, 'predict') and callable(deblurgan_model.predict):
+    #             # Count external arguments (excluding `self`)
+    #             arg_count = deblurgan_model.predict.__code__.co_argcount - 1
 
-            output_image.save(enhanced_path)
+    #             if arg_count == 2:
+    #                 output_image = deblurgan_model.predict(
+    #                     pil_image, enhancement_type)
+    #             elif arg_count == 1:
+    #                 output_image = deblurgan_model.predict(pil_image)
+    #             else:
+    #                 raise TypeError("Unsupported predict() signature.")
+    #         else:
+    #             output_image = deblurgan_model.predict(pil_image)
 
-        else:
-            # Fallback: Enhanced OpenCV processing
-            pil_image = Image.open(file_path).convert("RGB")
-            enhancer = SimpleImageEnhancer()
-            output_image = enhancer.enhance_image(pil_image, enhancement_type)
-            output_image.save(enhanced_path)
-    except Exception as e:
-        print("Enhancement error:", e)
-        return JSONResponse({"error": "Enhancement failed"}, status_code=500)
+    #         output_image.save(enhanced_path)
+
+    #     else:
+    #         # Fallback: Enhanced OpenCV processing
+    #         pil_image = Image.open(file_path).convert("RGB")
+    #         enhancer = SimpleImageEnhancer()
+    #         output_image = enhancer.enhance_image(pil_image, enhancement_type)
+    #         output_image.save(enhanced_path)
+    # except Exception as e:
+    #     print("Enhancement error:", e)
+    #     return JSONResponse({"error": "Enhancement failed"}, status_code=500)
 
     # Save file info to session
     files = request.session.get("files", [])
