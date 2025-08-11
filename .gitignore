@@ -10,7 +10,8 @@ __pycache__
 *.pth
 *.data-00000-of-00001
 DeblurGAN_model/
-DeblurGAN-tf/
+DeblurGANv2/
 training_data/
 .model/
 .DS_Store
+*.h5
