@@ -239,46 +239,97 @@ class FPNMobileGenerator(nn.Module):
         self.final = nn.Conv2d(
             num_filters // 2, output_ch, kernel_size=3, padding=1)
 
-    def forward(self, x):
+    # def forward(self, x):
+    #     map0, map1, map2, map3, map4 = self.fpn(x)
+
+    #     # Process with heads
+    #     map4 = self.head4(map4)
+    #     map3 = self.head3(map3)
+    #     map2 = self.head2(map2)
+    #     map1 = self.head1(map1)
+
+    #     # Step 1: Pick a reference size (map1 is usually fine)
+    #     target_size = map1.size()[2:]  # (H, W)
+
+    #     # Step 2: Force all maps to same size before concatenation
+    #     map4 = F.interpolate(map4, size=target_size, mode="nearest")
+    #     map3 = F.interpolate(map3, size=target_size, mode="nearest")
+    #     map2 = F.interpolate(map2, size=target_size, mode="nearest")
+    #     # map1 is already target_size
+
+    #     smoothed = self.smooth(torch.cat([map4, map3, map2, map1], dim=1))
+
+    #     # Step 3: Upsample smoothed and match to map0 for addition
+    #     smoothed = F.interpolate(smoothed, scale_factor=2, mode="nearest")
+    #     map0 = F.interpolate(map0, size=smoothed.size()[2:], mode="nearest")
+
+    #     smoothed = self.smooth2(smoothed + map0)
+
+    #     # Step 4: Final upsample
+    #     smoothed = F.interpolate(smoothed, scale_factor=2, mode="nearest")
+
+    #     final = self.final(smoothed)
+
+    #     # Match final to original input size
+    #     final = F.interpolate(final, size=x.size()[2:], mode="nearest")
+
+    #     # res = torch.tanh(final) + x
+    #     # Without skip connection
+    #     res = x + torch.tanh(final)
+
+    #     # Or scale the residual
+    #     # res = x + 0.5 * torch.tanh(final)
+
+    #     # skip tanh
+    #     # res = x + final
+
+    def forward(self, x, strength=3.0):
+        """
+        Args:
+            x: input tensor [-1, 1]
+            strength: multiplier for how aggressively to apply deblurring changes
+                    0.0 = no change, 1.0 = normal, >1.0 = more aggressive
+        """
         map0, map1, map2, map3, map4 = self.fpn(x)
 
-        # Process with heads
+        # Heads
         map4 = self.head4(map4)
         map3 = self.head3(map3)
         map2 = self.head2(map2)
         map1 = self.head1(map1)
 
-        # Step 1: Pick a reference size (map1 is usually fine)
-        target_size = map1.size()[2:]  # (H, W)
-
-        # Step 2: Force all maps to same size before concatenation
-        map4 = F.interpolate(map4, size=target_size, mode="nearest")
-        map3 = F.interpolate(map3, size=target_size, mode="nearest")
-        map2 = F.interpolate(map2, size=target_size, mode="nearest")
-        # map1 is already target_size
+        # Reference size (map1)
+        target_size = map1.size()[2:]
+        map4 = F.interpolate(map4, size=target_size,
+                             mode="bilinear", align_corners=False)
+        map3 = F.interpolate(map3, size=target_size,
+                             mode="bilinear", align_corners=False)
+        map2 = F.interpolate(map2, size=target_size,
+                             mode="bilinear", align_corners=False)
 
         smoothed = self.smooth(torch.cat([map4, map3, map2, map1], dim=1))
 
-        # Step 3: Upsample smoothed and match to map0 for addition
-        smoothed = F.interpolate(smoothed, scale_factor=2, mode="nearest")
-        map0 = F.interpolate(map0, size=smoothed.size()[2:], mode="nearest")
+        # Match sizes for addition with map0
+        smoothed = F.interpolate(
+            smoothed, scale_factor=2, mode="bilinear", align_corners=False)
+        map0 = F.interpolate(map0, size=smoothed.size()[
+                             2:], mode="bilinear", align_corners=False)
 
         smoothed = self.smooth2(smoothed + map0)
 
-        # Step 4: Final upsample
-        smoothed = F.interpolate(smoothed, scale_factor=2, mode="nearest")
+        # Final upsample
+        smoothed = F.interpolate(
+            smoothed, scale_factor=2, mode="bilinear", align_corners=False)
 
         final = self.final(smoothed)
 
-        # Match final to original input size
-        final = F.interpolate(final, size=x.size()[2:], mode="nearest")
+        # Match to input size
+        final = F.interpolate(final, size=x.size()[
+                              2:], mode="bilinear", align_corners=False)
 
-        # res = torch.tanh(final) + x
-        # Without skip connection
-        # res = torch.tanh(final)
-
-        # Or scale the residual
-        res = x + 0.5 * torch.tanh(final)
+        # Apply tunable strength to the residual
+        residual = torch.tanh(final) * strength
+        res = x + residual
 
         return torch.clamp(res, min=-1, max=1)
 
