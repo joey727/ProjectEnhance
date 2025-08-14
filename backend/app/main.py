@@ -24,6 +24,7 @@ from PIL import Image
 import tensorflow as tf
 import torchvision.transforms as T
 
+# from backend.app.model_loader import load_model
 from backend.app.model_loader import load_model
 from backend.app.simple_enhancer import SimpleImageEnhancer
 
@@ -35,8 +36,15 @@ logger.setLevel(logging.WARNING)
 
 
 app = FastAPI()
-app.add_middleware(SessionMiddleware, os.environ.get(
-    "FASTAPI_SECRET_KEY", "random_secret_key"))
+
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("SESSION_SECRET_KEY",
+                              "supersecretkey"),
+    same_site="lax",
+    https_only=False
+)
 
 # Set up templates
 templates = Jinja2Templates(directory="landing/public")
@@ -115,7 +123,7 @@ os.makedirs(ENHANCED_DIR, exist_ok=True)
 deblurgan_model = None
 try:
     model = load_model(
-        "backend/app/trained_models/mobilenetv2_rgb_epoch150_bs256.pth")
+        "/Users/joshuasackey/Downloads/fpn_mobilenet (2).h5")
     print("weights successfully loaded")
 except Exception as e:
     print("Failed to load PyTorch DeblurGAN model:", e)
