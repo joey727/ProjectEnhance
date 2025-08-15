@@ -1,11 +1,10 @@
+from json import load
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
-from backend.app import fpn_mobilenet
-from backend.app import inference
-from backend.app.config import settings
+from fpn_mobilenet import deblur_image
 from fastapi.staticfiles import StaticFiles
 import os
 import logging
@@ -16,13 +15,8 @@ import cv2
 import numpy as np
 from PIL import Image
 from torchvision import transforms
-from backend.app.inference import deblur_image
-from backend.app.model_generator import FPNInception
-from backend.app.model.deblurgan_predict import DeblurGANPredictor
-import torchvision.transforms as T
-
-# from backend.app.model_loader import load_model
-from backend.app.model_loader import load_model
+from dotenv import load_dotenv
+from model_loader import load_model
 
 
 # Configure logging
@@ -32,7 +26,7 @@ logger.setLevel(logging.WARNING)
 
 
 app = FastAPI()
-
+load_dotenv()
 
 app.add_middleware(
     SessionMiddleware,
@@ -53,8 +47,8 @@ app.mount("/landing", StaticFiles(directory="landing/public",
 oauth = OAuth()
 oauth.register(
     name='google',
-    client_id=settings.client_id,
-    client_secret=settings.client_secret,
+    client_id=os.getenv("CLIENT_ID"),
+    client_secret=os.getenv("CLIENT_SECRET"),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile',
@@ -160,7 +154,7 @@ async def enhance_image(
     enhanced_path = os.path.join(ENHANCED_DIR, enhanced_filename)
 
     if model:
-        fpn_mobilenet.deblur_image(model, file_path, enhanced_path)
+        deblur_image(model, file_path, enhanced_path)
 
     # try:
     #     if deblurgan_model:
