@@ -26,7 +26,6 @@ import torchvision.transforms as T
 
 # from backend.app.model_loader import load_model
 from backend.app.model_loader import load_model
-from backend.app.simple_enhancer import SimpleImageEnhancer
 
 
 # Configure logging
@@ -136,7 +135,7 @@ except Exception as e:
         print("Failed to load TensorFlow DeblurGAN model:", e2)
         # Final fallback to enhanced OpenCV-based enhancer
         try:
-            from backend.app.simple_enhancer import SimpleImagePredictor
+            from backend.app.simple_enhancer_fixed import SimpleImagePredictor
             deblurgan_model = SimpleImagePredictor()
             print("Enhanced OpenCV-based image enhancer loaded as final fallback.")
         except Exception as e3:

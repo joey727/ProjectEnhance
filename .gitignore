@@ -4,7 +4,6 @@ README.md
 __pycache__
 *enhanced
 *uploads
-*.github
 *.data
 *.index
 *.pth
