@@ -18,10 +18,7 @@ from PIL import Image
 from torchvision import transforms
 from backend.app.inference import deblur_image
 from backend.app.model_generator import FPNInception
-import torch
 from backend.app.model.deblurgan_predict import DeblurGANPredictor
-from PIL import Image
-import tensorflow as tf
 import torchvision.transforms as T
 
 # from backend.app.model_loader import load_model

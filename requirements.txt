@@ -23,8 +23,6 @@ starlette==0.47.1
 tensorboard==2.16.2
 tensorboard-data-server==0.7.2
 tensorboardX==2.6.4
-tensorflow==2.16.2
-tensorflow-io-gcs-filesystem==0.37.1
 tomli==2.2.1
 torch==2.2.2
 torchsummary==1.5.1
