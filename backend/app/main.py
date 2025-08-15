@@ -13,6 +13,7 @@ import uuid
 from datetime import datetime
 from dotenv import load_dotenv
 from backend.app.model_loader import load_model
+from backend.app.config import settings
 
 
 # Configure logging
@@ -54,8 +55,8 @@ app.mount("/landing", StaticFiles(directory="landing/public",
 oauth = OAuth()
 oauth.register(
     name='google',
-    client_id="243259308632-2g1ocg9om6k96m0h28batf3krru6t82l.apps.googleusercontent.com",
-    client_secret="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",
+    client_id=settings.client_id,
+    client_secret=settings.client_secret,
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile',
