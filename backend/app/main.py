@@ -4,19 +4,15 @@ from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
-from fpn_mobilenet import deblur_image
+from backend.app.fpn_mobilenet import deblur_image
 from fastapi.staticfiles import StaticFiles
 import os
 import logging
 import shutil
 import uuid
 from datetime import datetime
-import cv2
-import numpy as np
-from PIL import Image
-from torchvision import transforms
 from dotenv import load_dotenv
-from model_loader import load_model
+from backend.app.model_loader import load_model
 
 
 # Configure logging
@@ -26,6 +22,7 @@ logger.setLevel(logging.WARNING)
 
 
 app = FastAPI()
+
 load_dotenv()
 
 app.add_middleware(
@@ -35,6 +32,16 @@ app.add_middleware(
     same_site="lax",
     https_only=False
 )
+
+# origins = ["*"]
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # Set up templates
 templates = Jinja2Templates(directory="landing/public")
@@ -47,8 +54,8 @@ app.mount("/landing", StaticFiles(directory="landing/public",
 oauth = OAuth()
 oauth.register(
     name='google',
-    client_id=os.getenv("CLIENT_ID"),
-    client_secret=os.getenv("CLIENT_SECRET"),
+    client_id="243259308632-2g1ocg9om6k96m0h28batf3krru6t82l.apps.googleusercontent.com",
+    client_secret="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",
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile',
@@ -72,10 +79,20 @@ async def login(request: Request):
 @app.get("/auth")
 async def auth(request: Request):
     token = await oauth.google.authorize_access_token(request)
+    if not token:
+        return JSONResponse({"error": "Authentication failed"}, status_code=401)
     user_info = await oauth.google.userinfo(token=token)
     if user_info:
         request.session['user'] = dict(user_info)
         return RedirectResponse(url="/dashboard")
+
+# @app.get("/auth")
+# async def auth(request: Request):
+#     token = await oauth.google.authorize_access_token(request)
+#     user_info = await oauth.google.parse_id_token(request, token)
+#     if user_info:
+#         request.session['user'] = dict(user_info)
+#         return RedirectResponse(url="/dashboard")
 
 
 # logout route

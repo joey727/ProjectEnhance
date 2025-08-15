@@ -1,5 +1,5 @@
 import torch
-from fpn_mobilenet import FPNMobileGenerator
+from backend.app.fpn_mobilenet import FPNMobileGenerator
 
 
 def load_model(weights_path, device="cpu"):
