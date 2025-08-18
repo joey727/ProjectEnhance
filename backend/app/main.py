@@ -1,4 +1,3 @@
-from json import load
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -131,7 +130,7 @@ os.makedirs(ENHANCED_DIR, exist_ok=True)
 deblurgan_model = None
 try:
     model = load_model(
-        "/Users/joshuasackey/Downloads/fpn_mobilenet (2).h5")
+        "backend/app/trained_models/mobilenetv2_rgb_epoch150_bs256.pth")
     print("weights successfully loaded")
 except Exception as e:
     print("Failed to load PyTorch DeblurGAN model:", e)
