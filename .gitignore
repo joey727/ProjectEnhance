@@ -14,3 +14,6 @@ training_data/
 .model/
 .DS_Store
 *.h5
+Gopro/
+runs/
+trained_models/

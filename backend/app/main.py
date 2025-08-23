@@ -130,7 +130,7 @@ os.makedirs(ENHANCED_DIR, exist_ok=True)
 deblurgan_model = None
 try:
     model = load_model(
-        "backend/app/trained_models/mobilenetv2_rgb_epoch150_bs256.pth")
+        "backend/app/runs/progressive_mobilenet/final_netG.pth")
     print("weights successfully loaded")
 except Exception as e:
     print("Failed to load PyTorch DeblurGAN model:", e)
