@@ -8,6 +8,7 @@ Usage (example):
     deblur_image(model, "blur.jpg", "restored.jpg", device="cpu")
 """
 
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -59,11 +60,21 @@ def pad_to_multiple(tensor, mult=32):
     return tensor, (pad_h, pad_w)
 
 
-def preprocess_image_pil(img_path):
-    img = Image.open(img_path).convert("RGB")
+# def preprocess_image_pil(img_path):
+#     img = Image.open(img_path).convert("RGB")
+#     arr = np.array(img).astype(np.float32) / 255.0
+#     arr = arr * 2.0 - 1.0  # [-1, 1]
+#     tensor = torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)  # (1,C,H,W)
+#     return tensor
+
+def preprocess_image_pil(img_or_path):
+    if isinstance(img_or_path, Image.Image):
+        img = img_or_path.convert("RGB")
+    else:
+        img = Image.open(img_or_path).convert("RGB")
     arr = np.array(img).astype(np.float32) / 255.0
     arr = arr * 2.0 - 1.0  # [-1, 1]
-    tensor = torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)  # (1,C,H,W)
+    tensor = torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)
     return tensor
 
 
@@ -358,6 +369,7 @@ def load_model(weights_path=None, device="cpu"):
 
 
 def deblur_image(model, input_path, output_path, device="cpu"):
+    model.eval()
     device = torch.device(device)
     model.to(device)
     inp = preprocess_image_pil(input_path).to(device)
@@ -372,6 +384,40 @@ def deblur_image(model, input_path, output_path, device="cpu"):
     out_img = deprocess_tensor_to_pil(out)
     out_img.save(output_path)
     print(f"Saved deblurred image to: {output_path}")
+
+
+# def deblur_image(model, input_path, output_path, device="cpu", residual=False):
+#     # Ensure eval mode for deterministic output
+#     model.eval()
+#     device = torch.device(device)
+#     model.to(device)
+
+#     # Preprocess
+#     inp = preprocess_image_pil(input_path).to(device)
+#     print(
+#         f"Input tensor shape: {inp.shape}, min: {inp.min().item():.4f}, max: {inp.max().item():.4f}")
+
+#     # Align to multiple for conv layers
+#     inp, pads = pad_to_multiple(inp, mult=32)
+
+#     with torch.no_grad():
+#         out = model(inp)
+
+#         # If model outputs residuals, combine with input
+#         if residual:
+#             out = inp + out
+
+#     # Remove padding
+#     if pads != (0, 0):
+#         pad_h, pad_w = pads
+#         h_cut = out.shape[2] - pad_h
+#         w_cut = out.shape[3] - pad_w
+#         out = out[:, :, :h_cut, :w_cut]
+
+#     # Deprocess back to PIL
+#     out_img = deprocess_tensor_to_pil(out)
+#     out_img.save(output_path)
+#     print(f"✅ Saved deblurred image to: {output_path}")
 
 
 # ----------------- CLI test -----------------
